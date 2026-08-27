@@ -1,25 +1,25 @@
 # tågkarta
 
-Live karta över tåg i Sverige. Positionerna hämtas som JSON från wrapper-API:t — klienten anropar inte Trafikverket direkt.
+Live map of trains in Sweden. Positions are fetched as JSON from the wrapper API — the client does not call Trafikverket directly.
 
-## Kom igång
+## Setup
 
 ```bash
 npm install
 npm run dev
 ```
 
-Öppna adressen som Vite skriver ut (oftast http://localhost:5173). I utveckling proxas `/api` till API:t så att CORS inte behövs lokalt.
+Open the URL Vite prints (usually http://localhost:5173). In development, `/api` is proxied to the API so local CORS is not required.
 
-## Bygga
+## Build
 
 ```bash
 npm run build
 ```
 
-Produktionsbygget anropar API:t direkt på Railway.
+The production build calls the Railway origin directly.
 
 ## API
 
-- Bas-URL: https://trafikverket-api-production.up.railway.app/
-- Positioner: `GET /api/train/position`
+- Base URL: https://trafikverket-api-production.up.railway.app/
+- Positions: `GET /api/train/position`
