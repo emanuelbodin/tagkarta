@@ -23,6 +23,13 @@ npm run build
 
 The production build calls the Railway origin directly.
 
+## Railway
+
+- Build command: `npm run build`
+- Start command: `npm start` (`serve -s dist` on `0.0.0.0:$PORT`)
+
+Production browsers call the wrapper API from this origin, so that API must send CORS headers. The Vite `/api` proxy is only used during `npm run dev`.
+
 ## API
 
 - Base URL: https://trafikverket-api-production.up.railway.app/
