@@ -3,6 +3,7 @@ import { DomEvent } from "leaflet";
 import {
   MapContainer,
   Marker,
+  Popup,
   TileLayer,
   Tooltip,
   ZoomControl,
@@ -10,7 +11,10 @@ import {
   useMapEvents,
 } from "react-leaflet";
 import type { ParsedTrain } from "../api/trains";
+import { DisruptionPopupList } from "./DisruptionPopup";
 import { operatorBadge } from "../lib/operator";
+import { disruptionDivIcon } from "../lib/disruptionIcon";
+import type { StationDisruptionGroup } from "../lib/disruptionStations";
 import { markerSizeForZoom, trainDivIcon } from "../lib/trainIcon";
 
 const SWEDEN_CENTER: [number, number] = [62.0, 15.5];
@@ -102,10 +106,57 @@ function TrainMarkers({
   );
 }
 
+function DisruptionMarkers({
+  groups,
+  ignoreNextMapClick,
+}: {
+  groups: StationDisruptionGroup[];
+  ignoreNextMapClick: RefObject<boolean>;
+}) {
+  return (
+    <>
+      {groups.map((group) => (
+        <Marker
+          key={group.signature}
+          position={[group.lat, group.lon]}
+          icon={disruptionDivIcon(group.disruptions.length)}
+          zIndexOffset={-40}
+          keyboard={false}
+          eventHandlers={{
+            click: (event) => {
+              DomEvent.stop(event.originalEvent);
+              ignoreNextMapClick.current = true;
+            },
+          }}
+        >
+          <Tooltip direction="top" offset={[0, -28]} opacity={0.95}>
+            {group.disruptions.length > 1
+              ? `${group.name} · ${group.disruptions.length} störningar`
+              : group.name}
+          </Tooltip>
+          <Popup
+            className="disruption-leaflet-popup"
+            maxWidth={280}
+            minWidth={200}
+            autoPanPadding={[60, 60]}
+          >
+            <DisruptionPopupList
+              stationName={group.name}
+              disruptions={group.disruptions}
+            />
+          </Popup>
+        </Marker>
+      ))}
+    </>
+  );
+}
+
 type TrainMapProps = {
   trains: ParsedTrain[];
   selectedId: string | null;
   showTracks: boolean;
+  disruptionGroups: StationDisruptionGroup[];
+  showDisruptions: boolean;
   onSelect: (train: ParsedTrain) => void;
   onDeselect: () => void;
 };
@@ -114,6 +165,8 @@ export function TrainMap({
   trains,
   selectedId,
   showTracks,
+  disruptionGroups,
+  showDisruptions,
   onSelect,
   onDeselect,
 }: TrainMapProps) {
@@ -146,6 +199,12 @@ export function TrainMap({
         ignoreNextClick={ignoreNextMapClick}
         onDeselect={onDeselect}
       />
+      {showDisruptions ? (
+        <DisruptionMarkers
+          groups={disruptionGroups}
+          ignoreNextMapClick={ignoreNextMapClick}
+        />
+      ) : null}
       <TrainMarkers
         trains={trains}
         selectedId={selectedId}

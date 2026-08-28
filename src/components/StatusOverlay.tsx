@@ -19,6 +19,9 @@ type StatusOverlayProps = {
   onClearFilters: () => void;
   showTracks: boolean;
   onToggleTracks: () => void;
+  showDisruptions: boolean;
+  onToggleDisruptions: () => void;
+  disruptionsError: string | null;
 };
 
 export function StatusOverlay({
@@ -36,6 +39,9 @@ export function StatusOverlay({
   onClearFilters,
   showTracks,
   onToggleTracks,
+  showDisruptions,
+  onToggleDisruptions,
+  disruptionsError,
 }: StatusOverlayProps) {
   const [legendOpen, setLegendOpen] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(true);
@@ -74,6 +80,11 @@ export function StatusOverlay({
         {error ? (
           <p className="mt-2 mb-0 text-sm leading-snug text-red-700">{error}</p>
         ) : null}
+        {disruptionsError ? (
+          <p className="mt-2 mb-0 text-xs leading-snug text-amber-800">
+            {disruptionsError}
+          </p>
+        ) : null}
 
         <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1">
           <label className="flex cursor-pointer items-center gap-2 text-sm">
@@ -85,6 +96,16 @@ export function StatusOverlay({
               aria-label="Visa järnvägsspår"
             />
             Spår
+          </label>
+          <label className="flex cursor-pointer items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={showDisruptions}
+              onChange={onToggleDisruptions}
+              className="size-3.5 accent-amber-600"
+              aria-label="Visa störningar"
+            />
+            Störningar
           </label>
           {showTracks ? (
             <button
