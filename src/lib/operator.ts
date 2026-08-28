@@ -23,8 +23,26 @@ const NEUTRAL: OperatorBadge = {
 const ACTIVE_FALLBACK = "#0b6bcb";
 const INACTIVE_FALLBACK = "#6b7280";
 
+/** Wikimedia Commons files in public/operators. SKÅJ / NJ / unknown stay letter-only. */
+const OPERATOR_LOGOS: Record<string, string> = {
+  SJ: "/operators/sj.svg",
+  SLL: "/operators/sl-t.svg",
+  SL: "/operators/sl-t.svg",
+  VY: "/operators/vy.svg",
+  ARRIVA: "/operators/arriva.svg",
+  TDEV: "/operators/malartag.svg",
+  MTRX: "/operators/mtr-nordic.svg",
+  ATRAIN: "/operators/arlanda-express.svg",
+  SNÄLL: "/operators/snalltaget.png",
+};
+
 function normalizeOperator(name: string): string {
-  return name.trim().toUpperCase();
+  return name.trim().toUpperCase().normalize("NFC");
+}
+
+export function operatorLogoSrc(operator: string | undefined): string | null {
+  if (!operator?.trim()) return null;
+  return OPERATOR_LOGOS[normalizeOperator(operator)] ?? null;
 }
 
 export function operatorCode(name: string): string {

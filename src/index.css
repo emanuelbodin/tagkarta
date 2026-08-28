@@ -76,6 +76,21 @@ body,
   user-select: none;
 }
 
+.train-disc.has-logo {
+  box-sizing: border-box;
+  padding: 3px;
+  background: #f8fafc;
+  border-color: rgb(148 163 184 / 0.55);
+}
+
+.train-logo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
 .train-disc.is-inactive {
   opacity: 0.62;
   filter: saturate(0.65);
