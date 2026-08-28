@@ -20,6 +20,7 @@ export type TrainPosition = {
   operator?: string;
   fromName?: string;
   toName?: string;
+  speed?: number;
 };
 
 export type ParsedTrain = {
@@ -34,6 +35,8 @@ export type ParsedTrain = {
   operator?: string;
   fromName?: string;
   toName?: string;
+  speed?: number;
+  heading?: number;
 };
 
 const POINT_RE =
@@ -74,6 +77,13 @@ function readOptionalString(...values: unknown[]): string | undefined {
   return undefined;
 }
 
+function readOptionalNumber(...values: unknown[]): number | undefined {
+  for (const value of values) {
+    if (typeof value === "number" && Number.isFinite(value)) return value;
+  }
+  return undefined;
+}
+
 function parseOne(item: unknown): ParsedTrain | null {
   if (!item || typeof item !== "object") return null;
 
@@ -106,6 +116,7 @@ function parseOne(item: unknown): ParsedTrain | null {
     operator: readOptionalString(rec.operator, rec.train?.operator),
     fromName: readOptionalString(rec.fromName, rec.train?.fromName),
     toName: readOptionalString(rec.toName, rec.train?.toName),
+    speed: readOptionalNumber(rec.speed),
   };
 }
 

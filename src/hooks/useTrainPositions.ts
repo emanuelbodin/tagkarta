@@ -4,6 +4,7 @@ import {
   POLL_MS,
   type ParsedTrain,
 } from "../api/trains";
+import { applyTrainHeadings, type HeadingTrack } from "../lib/heading";
 
 export type TrainPositionsState = {
   trains: ParsedTrain[];
@@ -20,13 +21,16 @@ export function useTrainPositions(
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const inFlight = useRef(false);
+  const tracks = useRef(new Map<string, HeadingTrack>());
 
   const load = useCallback(async () => {
     if (inFlight.current) return;
     inFlight.current = true;
     try {
       const next = await fetchTrainPositions();
-      setTrains(next);
+      const headed = applyTrainHeadings(tracks.current, next);
+      tracks.current = headed.next;
+      setTrains(headed.trains);
       setUpdatedAt(new Date());
       setError(null);
     } catch (err) {
