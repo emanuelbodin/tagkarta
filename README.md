@@ -2,7 +2,7 @@
 
 Live map of trains in Sweden. Positions are fetched as JSON from the wrapper API — the client does not call Trafikverket directly.
 
-Click a train to open a side panel with operator, route, and timetable (`GET /api/trains/:id` for the selected advertised train number only).
+Click a train to open a side panel with operator, route, and timetable (`GET /api/trains/:id` for the selected advertised train number only). Filter the map by train number or operator in the overlay (client-side on polled positions; empty filters show every train).
 
 Markers are larger discs with a padded hit target so they are easier to click at Sweden-wide zoom. `GET /api/train/position` may include optional `operator`, `fromName`, and `toName` (omitted when unknown). The client parses them as optional — missing fields are fine today, and operator badges / route text light up when the API starts sending them. Selecting a train also copies operator from the details response onto that marker. The app does not fetch details for every train.
 
