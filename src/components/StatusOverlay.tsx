@@ -15,6 +15,8 @@ type StatusOverlayProps = {
   selectedOperators: ReadonlySet<string>;
   onToggleOperator: (key: string) => void;
   onClearFilters: () => void;
+  showTracks: boolean;
+  onToggleTracks: () => void;
 };
 
 export function StatusOverlay({
@@ -30,6 +32,8 @@ export function StatusOverlay({
   selectedOperators,
   onToggleOperator,
   onClearFilters,
+  showTracks,
+  onToggleTracks,
 }: StatusOverlayProps) {
   const filtersActive =
     numberQuery.trim() !== "" || selectedOperators.size > 0;
@@ -62,6 +66,16 @@ export function StatusOverlay({
       ) : null}
 
       <div className="mt-2.5 flex flex-col gap-2">
+        <label className="flex cursor-pointer items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={showTracks}
+            onChange={onToggleTracks}
+            className="size-3.5 accent-sky-700"
+            aria-label="Visa järnvägsspår"
+          />
+          Spår
+        </label>
         <label className="block">
           <span className="sr-only">Filtrera på tågnummer</span>
           <input

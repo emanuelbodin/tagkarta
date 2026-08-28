@@ -19,6 +19,7 @@ export default function App() {
   const [selectedOperators, setSelectedOperators] = useState<Set<string>>(
     () => new Set(),
   );
+  const [showTracks, setShowTracks] = useState(true);
 
   const { details, loading: detailsLoading, error: detailsError, notFound } =
     useTrainDetails(selected?.advertisedTrainNumber ?? null);
@@ -81,6 +82,7 @@ export default function App() {
       <TrainMap
         trains={visibleTrains}
         selectedId={panelTrain?.id ?? null}
+        showTracks={showTracks}
         onSelect={onSelect}
         onDeselect={onDeselect}
       />
@@ -97,6 +99,8 @@ export default function App() {
         selectedOperators={selectedOperators}
         onToggleOperator={onToggleOperator}
         onClearFilters={onClearFilters}
+        showTracks={showTracks}
+        onToggleTracks={() => setShowTracks((on) => !on)}
       />
       {panelTrain ? (
         <TrainPanel

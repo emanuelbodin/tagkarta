@@ -41,7 +41,7 @@ src/api/journey.ts           # GET /api/trains/:id
 src/hooks/useTrainPositions.ts
 src/hooks/useTrainDetails.ts # fetch only when a train is selected
 src/hooks/useOperatorMemory.ts
-src/components/TrainMap.tsx  # DivIcon markers, tooltip, map click to deselect
+src/components/TrainMap.tsx  # OSM + OpenRailwayMap overlay, DivIcon markers
 src/components/TrainPanel.tsx
 src/components/StatusOverlay.tsx
 src/lib/filters.ts           # client-side number + operator matching
@@ -90,6 +90,7 @@ Dev paths: `/api/...` via the Vite proxy. Prod: absolute Railway URLs (`import.m
 - Default map: Sweden (`center ~[62.0, 15.5]`, zoom `~5`). User can pan/zoom. Do not filter to a corridor. Overlay filters (train number substring, operator chips from the current snapshot) are client-side only; empty filters show every train. Do not add API query params or N+1 fetches for filtering.
 - Poll positions every `POLL_MS` (8s) in `useTrainPositions`. Marker identity: `operationalTrainNumber + operationalTrainDepartureDate` (fallback `advertisedTrainNumber`). Update markers in place; do not wipe the layer each poll.
 - Operator badges: colored disc + short letters (`src/lib/operator.ts`). Use snapshot `operator` when present; otherwise copy from selected-train details. Do not fetch `/api/trains/:id` for every train. Do not add trademark logo files.
+- Railway tracks: OpenRailwayMap `standard` tiles as a Leaflet overlay on OSM (default on, overlay toggle “Spår”). Do not fetch Trafikverket geometry or add a rail-network backend.
 - Times in the UI: `Europe/Stockholm`.
 - Do not add a backend, React Router (unless a task needs routes), or dummy trains.
 - Prefer small React components and hooks over new frameworks. Keep `npm run build` succeeding.
