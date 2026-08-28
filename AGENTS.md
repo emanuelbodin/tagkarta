@@ -44,6 +44,7 @@ src/hooks/useOperatorMemory.ts
 src/components/TrainMap.tsx  # DivIcon markers, tooltip, map click to deselect
 src/components/TrainPanel.tsx
 src/components/StatusOverlay.tsx
+src/lib/filters.ts           # client-side number + operator matching
 src/lib/timetable.ts         # collapse noisy stops into one row per station
 src/lib/operator.ts          # short codes + disc colors
 src/lib/trainIcon.ts
@@ -86,7 +87,7 @@ Dev paths: `/api/...` via the Vite proxy. Prod: absolute Railway URLs (`import.m
 ## Conventions
 
 - Swedish UI copy. English README and this file.
-- Default map: Sweden (`center ~[62.0, 15.5]`, zoom `~5`). User can pan/zoom. Do not filter to a corridor or operator.
+- Default map: Sweden (`center ~[62.0, 15.5]`, zoom `~5`). User can pan/zoom. Do not filter to a corridor. Overlay filters (train number substring, operator chips from the current snapshot) are client-side only; empty filters show every train. Do not add API query params or N+1 fetches for filtering.
 - Poll positions every `POLL_MS` (8s) in `useTrainPositions`. Marker identity: `operationalTrainNumber + operationalTrainDepartureDate` (fallback `advertisedTrainNumber`). Update markers in place; do not wipe the layer each poll.
 - Operator badges: colored disc + short letters (`src/lib/operator.ts`). Use snapshot `operator` when present; otherwise copy from selected-train details. Do not fetch `/api/trains/:id` for every train. Do not add trademark logo files.
 - Times in the UI: `Europe/Stockholm`.
