@@ -51,10 +51,15 @@ export function TrainPanel({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [onClose]);
 
-  const operator = details?.operator?.trim();
-  const fromName = rows[0]?.station || details?.fromName?.trim();
+  const operator = details?.operator?.trim() || train.operator?.trim();
+  const fromName =
+    rows[0]?.station ||
+    details?.fromName?.trim() ||
+    train.fromName?.trim();
   const toName =
-    rows[rows.length - 1]?.station || details?.toName?.trim();
+    rows[rows.length - 1]?.station ||
+    details?.toName?.trim() ||
+    train.toName?.trim();
   const route =
     fromName && toName && fromName !== toName
       ? `${fromName} → ${toName}`

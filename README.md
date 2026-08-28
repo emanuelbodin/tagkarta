@@ -4,7 +4,7 @@ Live map of trains in Sweden. Positions are fetched as JSON from the wrapper API
 
 Click a train to open a side panel with operator, route, and timetable (`GET /api/trains/:id` for the selected advertised train number only).
 
-Markers are larger discs with a padded hit target so they are easier to click at Sweden-wide zoom. If the position snapshot includes `operator` (top-level or under `train`), the disc shows a short operator code and color. Selecting a train also copies the operator from the details response onto that marker — the app does not fetch details for every train.
+Markers are larger discs with a padded hit target so they are easier to click at Sweden-wide zoom. `GET /api/train/position` may include optional `operator`, `fromName`, and `toName` (omitted when unknown). The client parses them as optional — missing fields are fine today, and operator badges / route text light up when the API starts sending them. Selecting a train also copies operator from the details response onto that marker. The app does not fetch details for every train.
 
 ## Setup
 
@@ -22,6 +22,13 @@ npm run build
 ```
 
 The production build calls the Railway origin directly.
+
+## Railway
+
+- Build command: `npm run build`
+- Start command: `npm start` (`serve -s dist` on `0.0.0.0:$PORT`)
+
+Production browsers call the wrapper API from this origin, so that API must send CORS headers. The Vite `/api` proxy is only used during `npm run dev`.
 
 ## API
 
