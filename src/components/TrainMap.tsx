@@ -1,26 +1,20 @@
-import { useRef, type RefObject } from "react";
+import { useRef, useState, type RefObject } from "react";
 import { DomEvent } from "leaflet";
 import {
-  CircleMarker,
   MapContainer,
+  Marker,
   TileLayer,
   Tooltip,
   ZoomControl,
+  useMap,
   useMapEvents,
 } from "react-leaflet";
 import type { ParsedTrain } from "../api/trains";
+import { operatorBadge } from "../lib/operator";
+import { markerSizeForZoom, trainDivIcon } from "../lib/trainIcon";
 
 const SWEDEN_CENTER: [number, number] = [62.0, 15.5];
 const SWEDEN_ZOOM = 5;
-
-function markerPath(active: boolean, selected: boolean) {
-  return {
-    color: "#ffffff",
-    weight: selected ? 2 : 1.5,
-    fillColor: selected ? "#c2410c" : active ? "#0b6bcb" : "#6b7280",
-    fillOpacity: 0.95,
-  };
-}
 
 function MapBackgroundClick({
   enabled,
@@ -41,6 +35,64 @@ function MapBackgroundClick({
     },
   });
   return null;
+}
+
+function TrainMarkers({
+  trains,
+  selectedId,
+  ignoreNextMapClick,
+  onSelect,
+}: {
+  trains: ParsedTrain[];
+  selectedId: string | null;
+  ignoreNextMapClick: RefObject<boolean>;
+  onSelect: (train: ParsedTrain) => void;
+}) {
+  const map = useMap();
+  const [zoom, setZoom] = useState(map.getZoom());
+  useMapEvents({
+    zoomend: () => setZoom(map.getZoom()),
+  });
+  const size = markerSizeForZoom(zoom);
+
+  return (
+    <>
+      {trains.map((train) => {
+        const selected = train.id === selectedId;
+        const badge = operatorBadge(train.operator, train.active);
+        const tooltip = badge.code
+          ? `${train.advertisedTrainNumber} · ${badge.code}`
+          : train.advertisedTrainNumber;
+
+        return (
+          <Marker
+            key={train.id}
+            position={[train.lat, train.lon]}
+            icon={trainDivIcon({
+              operator: train.operator,
+              active: train.active,
+              selected,
+              disc: selected ? size.disc + 4 : size.disc,
+              hit: size.hit,
+            })}
+            zIndexOffset={selected ? 1000 : 0}
+            keyboard={false}
+            eventHandlers={{
+              click: (event) => {
+                DomEvent.stop(event.originalEvent);
+                ignoreNextMapClick.current = true;
+                onSelect(train);
+              },
+            }}
+          >
+            <Tooltip direction="top" offset={[0, -size.disc / 2 - 4]} opacity={0.95}>
+              {tooltip}
+            </Tooltip>
+          </Marker>
+        );
+      })}
+    </>
+  );
 }
 
 type TrainMapProps = {
@@ -76,28 +128,12 @@ export function TrainMap({
         ignoreNextClick={ignoreNextMapClick}
         onDeselect={onDeselect}
       />
-      {trains.map((train) => {
-        const selected = train.id === selectedId;
-        return (
-          <CircleMarker
-            key={train.id}
-            center={[train.lat, train.lon]}
-            radius={selected ? 8 : 6}
-            pathOptions={markerPath(train.active, selected)}
-            eventHandlers={{
-              click: (event) => {
-                DomEvent.stop(event.originalEvent);
-                ignoreNextMapClick.current = true;
-                onSelect(train);
-              },
-            }}
-          >
-            <Tooltip direction="top" offset={[0, -8]} opacity={0.95}>
-              {train.advertisedTrainNumber}
-            </Tooltip>
-          </CircleMarker>
-        );
-      })}
+      <TrainMarkers
+        trains={trains}
+        selectedId={selectedId}
+        ignoreNextMapClick={ignoreNextMapClick}
+        onSelect={onSelect}
+      />
     </MapContainer>
   );
 }
