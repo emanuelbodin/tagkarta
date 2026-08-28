@@ -16,6 +16,12 @@ import { markerSizeForZoom, trainDivIcon } from "../lib/trainIcon";
 const SWEDEN_CENTER: [number, number] = [62.0, 15.5];
 const SWEDEN_ZOOM = 5;
 
+const OSM_ATTRIBUTION =
+  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
+
+const OPENRAILWAYMAP_ATTRIBUTION =
+  '<a href="https://www.openstreetmap.org/copyright">&copy; OpenStreetMap contributors</a>, Style: <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA 2.0</a> <a href="https://www.openrailwaymap.org/">OpenRailwayMap</a> and OpenStreetMap';
+
 function MapBackgroundClick({
   enabled,
   ignoreNextClick,
@@ -98,6 +104,7 @@ function TrainMarkers({
 type TrainMapProps = {
   trains: ParsedTrain[];
   selectedId: string | null;
+  showTracks: boolean;
   onSelect: (train: ParsedTrain) => void;
   onDeselect: () => void;
 };
@@ -105,6 +112,7 @@ type TrainMapProps = {
 export function TrainMap({
   trains,
   selectedId,
+  showTracks,
   onSelect,
   onDeselect,
 }: TrainMapProps) {
@@ -118,10 +126,19 @@ export function TrainMap({
       className="h-full w-full"
     >
       <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        attribution={OSM_ATTRIBUTION}
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         maxZoom={19}
       />
+      {showTracks ? (
+        <TileLayer
+          attribution={OPENRAILWAYMAP_ATTRIBUTION}
+          url="https://tiles.openrailwaymap.org/standard/{z}/{x}/{y}.png"
+          minZoom={2}
+          maxZoom={19}
+          tileSize={256}
+        />
+      ) : null}
       <ZoomControl position="bottomleft" />
       <MapBackgroundClick
         enabled={selectedId != null}
