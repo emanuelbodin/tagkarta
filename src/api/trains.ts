@@ -22,6 +22,7 @@ export type ParsedTrain = {
   lon: number;
   advertisedTrainNumber: string;
   operationalTrainNumber: string;
+  operationalTrainDepartureDate: string;
   active: boolean;
   modifiedTime: string;
 };
@@ -79,6 +80,8 @@ function parseOne(item: unknown): ParsedTrain | null {
     lon: point.lon,
     advertisedTrainNumber: advertised,
     operationalTrainNumber: operational,
+    operationalTrainDepartureDate:
+      rec.train?.operationalTrainDepartureDate?.trim() ?? "",
     active: rec.status?.active === true,
     modifiedTime: typeof rec.modifiedTime === "string" ? rec.modifiedTime : "",
   };
