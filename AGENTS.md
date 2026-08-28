@@ -46,10 +46,11 @@ src/components/TrainPanel.tsx
 src/components/StatusOverlay.tsx
 src/lib/filters.ts           # client-side number + operator matching
 src/lib/timetable.ts         # collapse noisy stops into one row per station
-src/lib/operator.ts          # short codes + disc colors
+src/lib/operator.ts          # short codes, disc colors, Commons logo paths
 src/lib/heading.ts            # client-side bearing from successive positions
 src/lib/trainIcon.ts
 src/lib/formatTime.ts        # Europe/Stockholm
+public/operators/            # Wikimedia Commons logos (letter fallback if missing)
 vite.config.ts               # /api proxy (dev only)
 ```
 
@@ -89,8 +90,8 @@ Dev paths: `/api/...` via the Vite proxy. Prod: absolute Railway URLs (`import.m
 
 - Swedish UI copy. English README and this file.
 - Default map: Sweden (`center ~[62.0, 15.5]`, zoom `~5`). User can pan/zoom. Do not filter to a corridor. Overlay filters (train number substring, operator chips from the current snapshot) are client-side only; empty filters show every train. Do not add API query params or N+1 fetches for filtering.
-- Poll positions every `POLL_MS` (8s) in `useTrainPositions`. Marker identity: `operationalTrainNumber + operationalTrainDepartureDate` (fallback `advertisedTrainNumber`). Update markers in place; do not wipe the layer each poll.
-- Operator badges: colored disc + short letters (`src/lib/operator.ts`). Use snapshot `operator` when present; otherwise copy from selected-train details. Do not fetch `/api/trains/:id` for every train. Do not add trademark logo files. Heading chevron rotates with CSS; keep operator letters upright. Hide the arrow until a significant move (~60 m); hide again when displacement is tiny or `speed === 0`.
+- Poll positions every `POLL_MS` (3s) in `useTrainPositions`. Marker identity: `operationalTrainNumber + operationalTrainDepartureDate` (fallback `advertisedTrainNumber`). Update markers in place; do not wipe the layer each poll.
+- Operator badges: colored disc + short letters (`src/lib/operator.ts`). Use snapshot `operator` when present; otherwise copy from selected-train details. Do not fetch `/api/trains/:id` for every train. Marker discs use Wikimedia Commons logos in `public/operators/` (object-fit contain, light disc); keep letter-code fallback when the operator or file is missing (SKÅJ, NJ, unknown). Do not invent or generate logos. Heading chevron rotates with CSS and sits outside the disc; keep operator letters and logos upright. Hide the arrow until a significant move (~25 m at 3s polls); hide again when displacement is tiny (~12 m, GPS jitter) or `speed === 0`.
 - Railway tracks: OpenRailwayMap `standard` tiles as a Leaflet overlay on OSM (default on, overlay toggle “Spår”). Do not fetch Trafikverket geometry or add a rail-network backend.
 - Times in the UI: `Europe/Stockholm`.
 - Do not add a backend, React Router (unless a task needs routes), or dummy trains.

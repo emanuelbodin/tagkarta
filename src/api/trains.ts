@@ -1,5 +1,5 @@
 export const API_ORIGIN = "https://trafikverket-api-production.up.railway.app";
-export const POLL_MS = 8000;
+export const POLL_MS = 3000;
 
 export type TrainInfo = {
   operationalTrainNumber: string;

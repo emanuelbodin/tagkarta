@@ -1,5 +1,5 @@
 import L from "leaflet";
-import { operatorBadge } from "./operator";
+import { operatorBadge, operatorLogoSrc } from "./operator";
 
 export type MarkerSize = {
   disc: number;
@@ -7,9 +7,9 @@ export type MarkerSize = {
 };
 
 export function markerSizeForZoom(zoom: number): MarkerSize {
-  if (zoom >= 8) return { disc: 32, hit: 44 };
-  if (zoom >= 6) return { disc: 28, hit: 42 };
-  return { disc: 26, hit: 40 };
+  if (zoom >= 8) return { disc: 32, hit: 52 };
+  if (zoom >= 6) return { disc: 28, hit: 50 };
+  return { disc: 26, hit: 48 };
 }
 
 function escapeHtml(text: string): string {
@@ -35,6 +35,7 @@ export function trainDivIcon(options: {
   heading?: number;
 }): L.DivIcon {
   const badge = operatorBadge(options.operator, options.active);
+  const logoSrc = operatorLogoSrc(options.operator);
   const headingDeg =
     options.heading != null && Number.isFinite(options.heading)
       ? roundHeadingDeg(options.heading)
@@ -44,6 +45,7 @@ export function trainDivIcon(options: {
     options.hit,
     badge.code,
     badge.background,
+    logoSrc ?? "-",
     options.active ? "1" : "0",
     options.selected ? "1" : "0",
     headingDeg == null ? "-" : String(headingDeg),
@@ -56,10 +58,17 @@ export function trainDivIcon(options: {
     badge.code.length >= 4 ? 7 : badge.code.length === 3 ? 8 : 10;
   const selectedClass = options.selected ? " is-selected" : "";
   const inactiveClass = options.active ? "" : " is-inactive";
+  const logoClass = logoSrc ? " has-logo" : "";
   const arrowHtml =
     headingDeg == null
       ? ""
-      : `<div class="train-heading" style="transform:rotate(${headingDeg}deg)"><div class="train-arrow${selectedClass}"></div></div>`;
+      : `<div class="train-heading" style="transform:rotate(${headingDeg}deg)"><svg class="train-arrow${selectedClass}" viewBox="0 0 14 12" aria-hidden="true" focusable="false"><polygon points="7,1 13,11 1,11"/></svg></div>`;
+  const discInner = logoSrc
+    ? `<img class="train-logo" src="${escapeHtml(logoSrc)}" alt="" draggable="false" decoding="async">`
+    : escapeHtml(badge.code);
+  const discStyle = logoSrc
+    ? `width:${options.disc}px;height:${options.disc}px`
+    : `width:${options.disc}px;height:${options.disc}px;background:${badge.background};color:${badge.color};font-size:${fontSize}px`;
 
   const icon = L.divIcon({
     className: `train-marker-icon${selectedClass}`,
@@ -68,7 +77,7 @@ export function trainDivIcon(options: {
     html: `<div class="train-hit" style="width:${options.hit}px;height:${options.hit}px">
       <div class="train-body" style="width:${options.disc}px;height:${options.disc}px">
         ${arrowHtml}
-        <div class="train-disc${selectedClass}${inactiveClass}" style="width:${options.disc}px;height:${options.disc}px;background:${badge.background};color:${badge.color};font-size:${fontSize}px">${escapeHtml(badge.code)}</div>
+        <div class="train-disc${selectedClass}${inactiveClass}${logoClass}" style="${discStyle}">${discInner}</div>
       </div>
     </div>`,
   });
