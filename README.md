@@ -4,7 +4,7 @@ Live map of trains in Sweden. Positions are fetched as JSON from the wrapper API
 
 Click a train to open a side panel with operator, route, and timetable (`GET /api/trains/:id` for the selected advertised train number only). Filter the map by train number or operator in the overlay (client-side on polled positions; empty filters show every train). Railway tracks are an OpenRailwayMap tile overlay on OSM (toggle **Spår** in the overlay).
 
-Markers are larger discs with a padded hit target so they are easier to click at Sweden-wide zoom. `GET /api/train/position` may include optional `operator`, `fromName`, and `toName` (omitted when unknown). The client parses them as optional — missing fields are fine today, and operator badges / route text light up when the API starts sending them. Selecting a train also copies operator from the details response onto that marker. The app does not fetch details for every train.
+Markers are larger discs with a padded hit target so they are easier to click at Sweden-wide zoom. Heading arrows are derived client-side from successive positions (the bulk DTO has no bearing); optional top-level `speed` is parsed if present, and `speed === 0` hides the arrow. `GET /api/train/position` may include optional `operator`, `fromName`, and `toName` (omitted when unknown). The client parses them as optional — missing fields are fine today, and operator badges / route text light up when the API starts sending them. Selecting a train also copies operator from the details response onto that marker. The app does not fetch details for every train.
 
 ## Setup
 

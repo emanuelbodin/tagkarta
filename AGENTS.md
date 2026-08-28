@@ -35,7 +35,7 @@ PORT=3000 npm start  # serve dist on 0.0.0.0:$PORT (Railway)
 ```
 src/main.tsx                 # React mount
 src/App.tsx                  # poll hook + selection + panel
-src/index.css                # Tailwind + Leaflet + marker discs
+src/index.css                # Tailwind + Leaflet + marker discs + heading chevron
 src/api/trains.ts            # GET /api/train/position, WGS84 parse, optional snapshot fields
 src/api/journey.ts           # GET /api/trains/:id
 src/hooks/useTrainPositions.ts
@@ -47,6 +47,7 @@ src/components/StatusOverlay.tsx
 src/lib/filters.ts           # client-side number + operator matching
 src/lib/timetable.ts         # collapse noisy stops into one row per station
 src/lib/operator.ts          # short codes + disc colors
+src/lib/heading.ts            # client-side bearing from successive positions
 src/lib/trainIcon.ts
 src/lib/formatTime.ts        # Europe/Stockholm
 vite.config.ts               # /api proxy (dev only)
@@ -72,7 +73,7 @@ Dev paths: `/api/...` via the Vite proxy. Prod: absolute Railway URLs (`import.m
   }
   ```
 
-  Optional, omit-safe (top-level or under `train`): `operator`, `fromName`, `toName`. Skip records with unparseable geometry. Do not fake positions on fetch failure; show Swedish error copy in the overlay.
+  Optional, omit-safe (top-level or under `train`): `operator`, `fromName`, `toName`. Optional top-level `speed` (number); missing is fine. Skip records with unparseable geometry. Do not fake positions on fetch failure; show Swedish error copy in the overlay. Heading is not on the DTO — derive it in `src/lib/heading.ts` from previous lat/lon across polls.
 
 - `GET /api/trains/:id` — `:id` is `advertisedTrainNumber`. JSON:
 
@@ -89,7 +90,7 @@ Dev paths: `/api/...` via the Vite proxy. Prod: absolute Railway URLs (`import.m
 - Swedish UI copy. English README and this file.
 - Default map: Sweden (`center ~[62.0, 15.5]`, zoom `~5`). User can pan/zoom. Do not filter to a corridor. Overlay filters (train number substring, operator chips from the current snapshot) are client-side only; empty filters show every train. Do not add API query params or N+1 fetches for filtering.
 - Poll positions every `POLL_MS` (8s) in `useTrainPositions`. Marker identity: `operationalTrainNumber + operationalTrainDepartureDate` (fallback `advertisedTrainNumber`). Update markers in place; do not wipe the layer each poll.
-- Operator badges: colored disc + short letters (`src/lib/operator.ts`). Use snapshot `operator` when present; otherwise copy from selected-train details. Do not fetch `/api/trains/:id` for every train. Do not add trademark logo files.
+- Operator badges: colored disc + short letters (`src/lib/operator.ts`). Use snapshot `operator` when present; otherwise copy from selected-train details. Do not fetch `/api/trains/:id` for every train. Do not add trademark logo files. Heading chevron rotates with CSS; keep operator letters upright. Hide the arrow until a significant move (~60 m); hide again when displacement is tiny or `speed === 0`.
 - Railway tracks: OpenRailwayMap `standard` tiles as a Leaflet overlay on OSM (default on, overlay toggle “Spår”). Do not fetch Trafikverket geometry or add a rail-network backend.
 - Times in the UI: `Europe/Stockholm`.
 - Do not add a backend, React Router (unless a task needs routes), or dummy trains.

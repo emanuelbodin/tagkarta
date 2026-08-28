@@ -80,6 +80,7 @@ function TrainMarkers({
               selected,
               disc: selected ? size.disc + 4 : size.disc,
               hit: size.hit,
+              heading: train.heading,
             })}
             zIndexOffset={selected ? 1000 : 0}
             keyboard={false}

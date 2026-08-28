@@ -14,9 +14,10 @@ body,
   font-family: inherit;
 }
 
-.train-marker-icon {
+.leaflet-div-icon.train-marker-icon {
   background: transparent;
   border: none;
+  overflow: visible;
 }
 
 .train-hit {
@@ -24,9 +25,44 @@ body,
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  overflow: visible;
+}
+
+.train-body {
+  position: relative;
+  overflow: visible;
+}
+
+.train-heading {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transform-origin: 50% 50%;
+}
+
+.train-arrow {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 0;
+  height: 0;
+  border-left: 3.5px solid transparent;
+  border-right: 3.5px solid transparent;
+  border-bottom: 7px solid #0f172a;
+  transform: translate(-50%, calc(-100% + 2px));
+  filter: drop-shadow(0 0 0.6px #fff) drop-shadow(0 0 1.2px #fff);
+}
+
+.train-arrow.is-selected {
+  border-left-width: 4.5px;
+  border-right-width: 4.5px;
+  border-bottom-width: 9px;
+  border-bottom-color: #020617;
 }
 
 .train-disc {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: center;

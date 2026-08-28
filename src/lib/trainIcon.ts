@@ -22,14 +22,23 @@ function escapeHtml(text: string): string {
 
 const iconCache = new Map<string, L.DivIcon>();
 
+function roundHeadingDeg(heading: number): number {
+  return ((Math.round(heading / 5) * 5) % 360 + 360) % 360;
+}
+
 export function trainDivIcon(options: {
   operator?: string;
   active: boolean;
   selected: boolean;
   disc: number;
   hit: number;
+  heading?: number;
 }): L.DivIcon {
   const badge = operatorBadge(options.operator, options.active);
+  const headingDeg =
+    options.heading != null && Number.isFinite(options.heading)
+      ? roundHeadingDeg(options.heading)
+      : null;
   const key = [
     options.disc,
     options.hit,
@@ -37,6 +46,7 @@ export function trainDivIcon(options: {
     badge.background,
     options.active ? "1" : "0",
     options.selected ? "1" : "0",
+    headingDeg == null ? "-" : String(headingDeg),
   ].join("|");
 
   const cached = iconCache.get(key);
@@ -46,13 +56,20 @@ export function trainDivIcon(options: {
     badge.code.length >= 4 ? 7 : badge.code.length === 3 ? 8 : 10;
   const selectedClass = options.selected ? " is-selected" : "";
   const inactiveClass = options.active ? "" : " is-inactive";
+  const arrowHtml =
+    headingDeg == null
+      ? ""
+      : `<div class="train-heading" style="transform:rotate(${headingDeg}deg)"><div class="train-arrow${selectedClass}"></div></div>`;
 
   const icon = L.divIcon({
     className: `train-marker-icon${selectedClass}`,
     iconSize: [options.hit, options.hit],
     iconAnchor: [options.hit / 2, options.hit / 2],
     html: `<div class="train-hit" style="width:${options.hit}px;height:${options.hit}px">
-      <div class="train-disc${selectedClass}${inactiveClass}" style="width:${options.disc}px;height:${options.disc}px;background:${badge.background};color:${badge.color};font-size:${fontSize}px">${escapeHtml(badge.code)}</div>
+      <div class="train-body" style="width:${options.disc}px;height:${options.disc}px">
+        ${arrowHtml}
+        <div class="train-disc${selectedClass}${inactiveClass}" style="width:${options.disc}px;height:${options.disc}px;background:${badge.background};color:${badge.color};font-size:${fontSize}px">${escapeHtml(badge.code)}</div>
+      </div>
     </div>`,
   });
 
