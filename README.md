@@ -19,7 +19,18 @@ Open the URL Vite prints (usually http://localhost:5173). In development, `/api`
 npm run build
 ```
 
-The production build calls the Railway origin directly.
+The production build calls the wrapper API on Railway directly (no Vite proxy).
+
+## Railway
+
+Static frontend via Nixpacks — no Dockerfile.
+
+- Build command: `npm run build`
+- Start command: `npm start`
+
+`npm start` serves `dist` with `serve` on `0.0.0.0` and `process.env.PORT` (Railway injects `PORT`). SPA fallback rewrites unknown paths to `index.html`.
+
+Production browsers call the wrapper API from this Railway origin, so that API must send CORS headers (`Access-Control-Allow-Origin` for this origin, or `*`). The Vite `/api` proxy is only used during local `npm run dev`.
 
 ## API
 
