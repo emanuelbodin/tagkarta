@@ -1,7 +1,9 @@
 import type { ParsedTrain } from "../api/trains";
 
-export const HEADING_MOVE_M = 60;
-export const HEADING_STOP_M = 25;
+/** Recompute bearing after this much travel (~30 km/h at a 3s poll). */
+export const HEADING_MOVE_M = 25;
+/** Hide the arrow below this; GPS jitter on parked trains stays blank. */
+export const HEADING_STOP_M = 12;
 
 export type HeadingTrack = {
   lat: number;

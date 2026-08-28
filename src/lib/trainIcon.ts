@@ -7,9 +7,9 @@ export type MarkerSize = {
 };
 
 export function markerSizeForZoom(zoom: number): MarkerSize {
-  if (zoom >= 8) return { disc: 32, hit: 44 };
-  if (zoom >= 6) return { disc: 28, hit: 42 };
-  return { disc: 26, hit: 40 };
+  if (zoom >= 8) return { disc: 32, hit: 52 };
+  if (zoom >= 6) return { disc: 28, hit: 50 };
+  return { disc: 26, hit: 48 };
 }
 
 function escapeHtml(text: string): string {
@@ -62,7 +62,7 @@ export function trainDivIcon(options: {
   const arrowHtml =
     headingDeg == null
       ? ""
-      : `<div class="train-heading" style="transform:rotate(${headingDeg}deg)"><div class="train-arrow${selectedClass}"></div></div>`;
+      : `<div class="train-heading" style="transform:rotate(${headingDeg}deg)"><svg class="train-arrow${selectedClass}" viewBox="0 0 14 12" aria-hidden="true" focusable="false"><polygon points="7,1 13,11 1,11"/></svg></div>`;
   const discInner = logoSrc
     ? `<img class="train-logo" src="${escapeHtml(logoSrc)}" alt="" draggable="false" decoding="async">`
     : escapeHtml(badge.code);
