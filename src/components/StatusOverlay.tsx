@@ -1,6 +1,8 @@
+import { useEffect, useState } from "react";
 import { formatStockholm } from "../lib/formatTime";
 import { UNKNOWN_OPERATOR } from "../lib/filters";
 import { operatorBadge, operatorCode } from "../lib/operator";
+import { TrackLegend } from "./TrackLegend";
 
 type StatusOverlayProps = {
   filteredCount: number;
@@ -35,6 +37,12 @@ export function StatusOverlay({
   showTracks,
   onToggleTracks,
 }: StatusOverlayProps) {
+  const [legendOpen, setLegendOpen] = useState(false);
+
+  useEffect(() => {
+    if (!showTracks) setLegendOpen(false);
+  }, [showTracks]);
+
   const filtersActive =
     numberQuery.trim() !== "" || selectedOperators.size > 0;
   const countLabel = loading && !updatedAt
@@ -49,33 +57,55 @@ export function StatusOverlay({
 
   return (
     <aside
-      className="absolute top-3 left-3 z-[1000] w-[min(20rem,calc(100vw-1.5rem))] rounded-[10px] bg-white/95 px-3.5 py-3 text-gray-900 shadow-[0_1px_8px_rgba(17,24,39,0.18)]"
+      className="absolute top-3 left-3 z-[1000] flex max-h-[calc(100dvh-1.5rem)] w-[min(20rem,calc(100vw-1.5rem))] flex-col overflow-hidden rounded-[10px] bg-white/95 px-3.5 py-3 text-gray-900 shadow-[0_1px_8px_rgba(17,24,39,0.18)]"
       aria-live="polite"
     >
-      <h1 className="m-0 mb-1.5 text-[1.05rem] font-semibold tracking-tight">
-        tågkarta
-      </h1>
-      <p className="m-0 text-sm leading-snug">{countLabel}</p>
-      {updatedAt ? (
-        <p className="m-0 text-sm leading-snug">
-          Uppdaterad {formatStockholm(updatedAt)}
-        </p>
-      ) : null}
-      {error ? (
-        <p className="mt-2 mb-0 text-sm leading-snug text-red-700">{error}</p>
-      ) : null}
+      <div className="shrink-0">
+        <h1 className="m-0 mb-1.5 text-[1.05rem] font-semibold tracking-tight">
+          tågkarta
+        </h1>
+        <p className="m-0 text-sm leading-snug">{countLabel}</p>
+        {updatedAt ? (
+          <p className="m-0 text-sm leading-snug">
+            Uppdaterad {formatStockholm(updatedAt)}
+          </p>
+        ) : null}
+        {error ? (
+          <p className="mt-2 mb-0 text-sm leading-snug text-red-700">{error}</p>
+        ) : null}
+      </div>
 
-      <div className="mt-2.5 flex flex-col gap-2">
-        <label className="flex cursor-pointer items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            checked={showTracks}
-            onChange={onToggleTracks}
-            className="size-3.5 accent-sky-700"
-            aria-label="Visa järnvägsspår"
-          />
-          Spår
-        </label>
+      <div className="mt-2.5 flex min-h-0 flex-col gap-2 overflow-y-auto overscroll-contain">
+        <div>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <label className="flex cursor-pointer items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={showTracks}
+                onChange={onToggleTracks}
+                className="size-3.5 accent-sky-700"
+                aria-label="Visa järnvägsspår"
+              />
+              Spår
+            </label>
+            {showTracks ? (
+              <button
+                type="button"
+                aria-expanded={legendOpen}
+                aria-controls="track-legend"
+                onClick={() => setLegendOpen((open) => !open)}
+                className="text-xs font-medium text-sky-800 underline-offset-2 hover:underline"
+              >
+                Teckenförklaring
+              </button>
+            ) : null}
+          </div>
+          {showTracks && legendOpen ? (
+            <div id="track-legend">
+              <TrackLegend />
+            </div>
+          ) : null}
+        </div>
         <label className="block">
           <span className="sr-only">Filtrera på tågnummer</span>
           <input
