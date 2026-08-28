@@ -2,7 +2,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { StatusOverlay } from "./components/StatusOverlay";
 import { TrainMap } from "./components/TrainMap";
 import { TrainPanel } from "./components/TrainPanel";
+import { useDisruptions } from "./hooks/useDisruptions";
 import { useOperatorMemory } from "./hooks/useOperatorMemory";
+import { useStations } from "./hooks/useStations";
 import { useTrainDetails } from "./hooks/useTrainDetails";
 import { useTrainPositions } from "./hooks/useTrainPositions";
 import type { ParsedTrain } from "./api/trains";
@@ -11,15 +13,21 @@ import {
   snapshotHasUnknownOperator,
   snapshotOperators,
 } from "./lib/filters";
+import { groupDisruptionsByStation } from "./lib/disruptionStations";
 
 export default function App() {
   const { trains, updatedAt, error, loading } = useTrainPositions();
+  const { bySignature: stationsBySignature, error: stationsError } =
+    useStations();
   const [selected, setSelected] = useState<ParsedTrain | null>(null);
   const [numberQuery, setNumberQuery] = useState("");
   const [selectedOperators, setSelectedOperators] = useState<Set<string>>(
     () => new Set(),
   );
   const [showTracks, setShowTracks] = useState(true);
+  const [showDisruptions, setShowDisruptions] = useState(true);
+  const { disruptions, error: disruptionsError } =
+    useDisruptions(showDisruptions);
 
   const { details, loading: detailsLoading, error: detailsError, notFound } =
     useTrainDetails(selected?.advertisedTrainNumber ?? null);
@@ -43,6 +51,16 @@ export default function App() {
     () => filterTrains(trainsWithOperators, numberQuery, selectedOperators),
     [trainsWithOperators, numberQuery, selectedOperators],
   );
+
+  const disruptionGroups = useMemo(
+    () => groupDisruptionsByStation(disruptions, stationsBySignature),
+    [disruptions, stationsBySignature],
+  );
+
+  const disruptionsNote = showDisruptions
+    ? disruptionsError ??
+      (disruptions.length > 0 && stationsError ? stationsError : null)
+    : null;
 
   const panelTrain = useMemo(() => {
     if (!selected) return null;
@@ -83,6 +101,8 @@ export default function App() {
         trains={visibleTrains}
         selectedId={panelTrain?.id ?? null}
         showTracks={showTracks}
+        disruptionGroups={disruptionGroups}
+        showDisruptions={showDisruptions}
         onSelect={onSelect}
         onDeselect={onDeselect}
       />
@@ -101,6 +121,9 @@ export default function App() {
         onClearFilters={onClearFilters}
         showTracks={showTracks}
         onToggleTracks={() => setShowTracks((on) => !on)}
+        showDisruptions={showDisruptions}
+        onToggleDisruptions={() => setShowDisruptions((on) => !on)}
+        disruptionsError={disruptionsNote}
       />
       {panelTrain ? (
         <TrainPanel
