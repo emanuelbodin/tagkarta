@@ -8,6 +8,8 @@ export type TrainInfo = {
   journeyPlanDepartureDate: string;
   advertisedTrainNumber: string;
   operator?: string;
+  fromName?: string;
+  toName?: string;
 };
 
 export type TrainPosition = {
@@ -16,6 +18,8 @@ export type TrainPosition = {
   status: { active: boolean };
   modifiedTime: string;
   operator?: string;
+  fromName?: string;
+  toName?: string;
 };
 
 export type ParsedTrain = {
@@ -28,6 +32,8 @@ export type ParsedTrain = {
   active: boolean;
   modifiedTime: string;
   operator?: string;
+  fromName?: string;
+  toName?: string;
 };
 
 const POINT_RE =
@@ -58,7 +64,7 @@ export function trainIdentity(train: TrainInfo | undefined): string | null {
   return advertised || null;
 }
 
-function readOperator(...values: unknown[]): string | undefined {
+function readOptionalString(...values: unknown[]): string | undefined {
   for (const value of values) {
     if (typeof value === "string") {
       const trimmed = value.trim();
@@ -86,7 +92,6 @@ function parseOne(item: unknown): ParsedTrain | null {
     rec.train?.operationalTrainNumber?.trim() ||
     id;
   const operational = rec.train?.operationalTrainNumber?.trim() || advertised;
-  const operator = readOperator(rec.operator, rec.train?.operator);
 
   return {
     id,
@@ -98,7 +103,9 @@ function parseOne(item: unknown): ParsedTrain | null {
       rec.train?.operationalTrainDepartureDate?.trim() ?? "",
     active: rec.status?.active === true,
     modifiedTime: typeof rec.modifiedTime === "string" ? rec.modifiedTime : "",
-    operator,
+    operator: readOptionalString(rec.operator, rec.train?.operator),
+    fromName: readOptionalString(rec.fromName, rec.train?.fromName),
+    toName: readOptionalString(rec.toName, rec.train?.toName),
   };
 }
 
