@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { AppMark } from "./components/AppMark";
 import { StatusOverlay } from "./components/StatusOverlay";
 import { TrainMap } from "./components/TrainMap";
 import { TrainPanel } from "./components/TrainPanel";
@@ -106,6 +107,7 @@ export default function App() {
         onSelect={onSelect}
         onDeselect={onDeselect}
       />
+      <AppMark />
       <StatusOverlay
         filteredCount={visibleTrains.length}
         totalCount={trainsWithOperators.length}
