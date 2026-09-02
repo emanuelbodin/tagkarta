@@ -44,9 +44,8 @@ src/hooks/useOperatorMemory.ts
 src/hooks/useStations.ts
 src/hooks/useDisruptions.ts  # poll 60s
 src/components/TrainMap.tsx  # OSM + OpenRailwayMap overlay, DivIcon markers
-src/components/AppMark.tsx   # circular mascot badge, upper-right of the map
 src/components/TrainPanel.tsx
-src/components/StatusOverlay.tsx
+src/components/StatusOverlay.tsx # overlay + circular mascot next to title
 src/components/TrackLegend.tsx   # OpenRailwayMap standard-style swatches
 src/components/DisruptionPopup.tsx
 src/api/stations.ts          # GET /api/stations, geometry.WGS84
@@ -59,7 +58,7 @@ src/lib/trainIcon.ts
 src/lib/disruptionIcon.ts
 src/lib/disruptionStations.ts
 src/lib/formatTime.ts        # Europe/Stockholm
-public/logo.png              # app mascot (circular crop in AppMark)
+public/logo.png              # app mascot (circular crop in the overlay header)
 public/operators/            # Wikimedia Commons logos (letter fallback if missing)
 vite.config.ts               # /api proxy (dev only)
 ```

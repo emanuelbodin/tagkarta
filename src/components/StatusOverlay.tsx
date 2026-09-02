@@ -68,9 +68,16 @@ export function StatusOverlay({
       aria-live="polite"
     >
       <div className="shrink-0">
-        <h1 className="m-0 mb-1.5 text-[1.05rem] font-semibold tracking-tight">
-          tågkarta
-        </h1>
+        <div className="mb-1.5 flex items-center gap-2.5">
+          <img
+            src="/logo.png"
+            alt=""
+            className="size-11 shrink-0 rounded-full object-cover shadow-[0_1px_4px_rgba(17,24,39,0.18)]"
+          />
+          <h1 className="m-0 text-[1.05rem] font-semibold tracking-tight">
+            tågkarta
+          </h1>
+        </div>
         <p className="m-0 text-sm leading-snug">{countLabel}</p>
         {updatedAt ? (
           <p className="m-0 text-sm leading-snug">
