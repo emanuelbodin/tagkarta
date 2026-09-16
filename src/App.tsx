@@ -106,6 +106,7 @@ export default function App() {
         disruptionGroups={disruptionGroups}
         showDisruptions={showDisruptions}
         userLocation={userLocation}
+        locationError={locationError}
         onSelect={onSelect}
         onDeselect={onDeselect}
       />
