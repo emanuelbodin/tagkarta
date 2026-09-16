@@ -13,6 +13,7 @@ import {
 } from "react-leaflet";
 import type { ParsedTrain } from "../api/trains";
 import { DisruptionPopupList } from "./DisruptionPopup";
+import { LocateControl } from "./LocateControl";
 import type { UserCoords } from "../hooks/useUserLocation";
 import { operatorBadge } from "../lib/operator";
 import { disruptionDivIcon } from "../lib/disruptionIcon";
@@ -212,6 +213,7 @@ type TrainMapProps = {
   disruptionGroups: StationDisruptionGroup[];
   showDisruptions: boolean;
   userLocation: UserCoords | null;
+  locationError: string | null;
   onSelect: (train: ParsedTrain) => void;
   onDeselect: () => void;
 };
@@ -223,6 +225,7 @@ export function TrainMap({
   disruptionGroups,
   showDisruptions,
   userLocation,
+  locationError,
   onSelect,
   onDeselect,
 }: TrainMapProps) {
@@ -250,6 +253,10 @@ export function TrainMap({
         />
       ) : null}
       <ZoomControl position="bottomleft" />
+      <LocateControl
+        coords={userLocation}
+        locationError={userLocation ? null : locationError}
+      />
       <MapBackgroundClick
         enabled={selectedId != null}
         ignoreNextClick={ignoreNextMapClick}

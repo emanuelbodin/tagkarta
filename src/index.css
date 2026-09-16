@@ -264,3 +264,62 @@ body,
     transform: scale(1.85);
   }
 }
+
+.locate-control button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: #fff;
+  color: #1f2937;
+  cursor: pointer;
+}
+
+.leaflet-touch .locate-control button {
+  width: 30px;
+  height: 30px;
+}
+
+.locate-control button:hover:not(:disabled) {
+  background: #f4f4f4;
+}
+
+.locate-control button.has-fix {
+  color: #2563eb;
+}
+
+.locate-control button.is-pending {
+  color: #2563eb;
+}
+
+.locate-control button.is-pending svg {
+  animation: locate-pending 0.9s linear infinite;
+}
+
+.locate-control button:disabled {
+  cursor: not-allowed;
+  color: #bbb;
+  background: #f4f4f4;
+}
+
+.locate-control button svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+
+@keyframes locate-pending {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .locate-control button.is-pending svg {
+    animation: none;
+  }
+}
