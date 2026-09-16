@@ -7,6 +7,7 @@ import { useOperatorMemory } from "./hooks/useOperatorMemory";
 import { useStations } from "./hooks/useStations";
 import { useTrainDetails } from "./hooks/useTrainDetails";
 import { useTrainPositions } from "./hooks/useTrainPositions";
+import { useUserLocation } from "./hooks/useUserLocation";
 import type { ParsedTrain } from "./api/trains";
 import {
   filterTrains,
@@ -28,6 +29,7 @@ export default function App() {
   const [showDisruptions, setShowDisruptions] = useState(true);
   const { disruptions, error: disruptionsError } =
     useDisruptions(showDisruptions);
+  const { coords: userLocation, error: locationError } = useUserLocation();
 
   const { details, loading: detailsLoading, error: detailsError, notFound } =
     useTrainDetails(selected?.advertisedTrainNumber ?? null);
@@ -103,6 +105,7 @@ export default function App() {
         showTracks={showTracks}
         disruptionGroups={disruptionGroups}
         showDisruptions={showDisruptions}
+        userLocation={userLocation}
         onSelect={onSelect}
         onDeselect={onDeselect}
       />
@@ -124,6 +127,7 @@ export default function App() {
         showDisruptions={showDisruptions}
         onToggleDisruptions={() => setShowDisruptions((on) => !on)}
         disruptionsError={disruptionsNote}
+        locationError={userLocation ? null : locationError}
       />
       {panelTrain ? (
         <TrainPanel
