@@ -22,6 +22,7 @@ type StatusOverlayProps = {
   showDisruptions: boolean;
   onToggleDisruptions: () => void;
   disruptionsError: string | null;
+  locationError: string | null;
 };
 
 export function StatusOverlay({
@@ -42,6 +43,7 @@ export function StatusOverlay({
   showDisruptions,
   onToggleDisruptions,
   disruptionsError,
+  locationError,
 }: StatusOverlayProps) {
   const [legendOpen, setLegendOpen] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(true);
@@ -72,7 +74,7 @@ export function StatusOverlay({
           <img
             src="/logo.png"
             alt=""
-            className="size-11 shrink-0 rounded-full object-cover shadow-[0_1px_4px_rgba(17,24,39,0.18)]"
+            className="size-11 shrink-0 object-contain drop-shadow-[0_1px_1.5px_rgba(17,24,39,0.28)]"
           />
           <h1 className="m-0 text-[1.05rem] font-semibold tracking-tight">
             tågkarta
@@ -90,6 +92,11 @@ export function StatusOverlay({
         {disruptionsError ? (
           <p className="mt-2 mb-0 text-xs leading-snug text-amber-800">
             {disruptionsError}
+          </p>
+        ) : null}
+        {locationError ? (
+          <p className="mt-2 mb-0 text-xs leading-snug text-gray-600">
+            {locationError}
           </p>
         ) : null}
 

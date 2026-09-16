@@ -1,6 +1,7 @@
 import { useRef, useState, type RefObject } from "react";
 import { DomEvent } from "leaflet";
 import {
+  Circle,
   MapContainer,
   Marker,
   Popup,
@@ -12,13 +13,16 @@ import {
 } from "react-leaflet";
 import type { ParsedTrain } from "../api/trains";
 import { DisruptionPopupList } from "./DisruptionPopup";
+import type { UserCoords } from "../hooks/useUserLocation";
 import { operatorBadge } from "../lib/operator";
 import { disruptionDivIcon } from "../lib/disruptionIcon";
 import type { StationDisruptionGroup } from "../lib/disruptionStations";
 import { markerSizeForZoom, trainDivIcon } from "../lib/trainIcon";
+import { userLocationDivIcon } from "../lib/userLocationIcon";
 
 const SWEDEN_CENTER: [number, number] = [62.0, 15.5];
 const SWEDEN_ZOOM = 5;
+const MAX_ACCURACY_CIRCLE_M = 4000;
 
 const OSM_ATTRIBUTION =
   '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
@@ -106,6 +110,56 @@ function TrainMarkers({
   );
 }
 
+function UserLocationMarker({
+  coords,
+  ignoreNextMapClick,
+}: {
+  coords: UserCoords;
+  ignoreNextMapClick: RefObject<boolean>;
+}) {
+  const accuracy =
+    coords.accuracy != null &&
+    Number.isFinite(coords.accuracy) &&
+    coords.accuracy >= 15 &&
+    coords.accuracy <= MAX_ACCURACY_CIRCLE_M
+      ? coords.accuracy
+      : null;
+
+  return (
+    <>
+      {accuracy != null ? (
+        <Circle
+          center={[coords.lat, coords.lon]}
+          radius={accuracy}
+          interactive={false}
+          pathOptions={{
+            color: "#2563eb",
+            weight: 1,
+            fillColor: "#3b82f6",
+            fillOpacity: 0.12,
+          }}
+        />
+      ) : null}
+      <Marker
+        position={[coords.lat, coords.lon]}
+        icon={userLocationDivIcon()}
+        zIndexOffset={800}
+        keyboard={false}
+        eventHandlers={{
+          click: (event) => {
+            DomEvent.stop(event.originalEvent);
+            ignoreNextMapClick.current = true;
+          },
+        }}
+      >
+        <Tooltip direction="top" offset={[0, -12]} opacity={0.95}>
+          Du är här
+        </Tooltip>
+      </Marker>
+    </>
+  );
+}
+
 function DisruptionMarkers({
   groups,
   ignoreNextMapClick,
@@ -157,6 +211,7 @@ type TrainMapProps = {
   showTracks: boolean;
   disruptionGroups: StationDisruptionGroup[];
   showDisruptions: boolean;
+  userLocation: UserCoords | null;
   onSelect: (train: ParsedTrain) => void;
   onDeselect: () => void;
 };
@@ -167,6 +222,7 @@ export function TrainMap({
   showTracks,
   disruptionGroups,
   showDisruptions,
+  userLocation,
   onSelect,
   onDeselect,
 }: TrainMapProps) {
@@ -202,6 +258,12 @@ export function TrainMap({
       {showDisruptions ? (
         <DisruptionMarkers
           groups={disruptionGroups}
+          ignoreNextMapClick={ignoreNextMapClick}
+        />
+      ) : null}
+      {userLocation ? (
+        <UserLocationMarker
+          coords={userLocation}
           ignoreNextMapClick={ignoreNextMapClick}
         />
       ) : null}

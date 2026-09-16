@@ -43,9 +43,10 @@ src/hooks/useTrainDetails.ts # fetch only when a train is selected
 src/hooks/useOperatorMemory.ts
 src/hooks/useStations.ts
 src/hooks/useDisruptions.ts  # poll 60s
+src/hooks/useUserLocation.ts # watchPosition; no map pan on first fix
 src/components/TrainMap.tsx  # OSM + OpenRailwayMap overlay, DivIcon markers
 src/components/TrainPanel.tsx
-src/components/StatusOverlay.tsx # overlay + circular mascot next to title
+src/components/StatusOverlay.tsx # overlay + transparent mascot next to title
 src/components/TrackLegend.tsx   # OpenRailwayMap standard-style swatches
 src/components/DisruptionPopup.tsx
 src/api/stations.ts          # GET /api/stations, geometry.WGS84
@@ -56,9 +57,10 @@ src/lib/operator.ts          # short codes, disc colors, Commons logo paths
 src/lib/heading.ts            # client-side bearing from successive positions
 src/lib/trainIcon.ts
 src/lib/disruptionIcon.ts
+src/lib/userLocationIcon.ts  # blue pulsing “you are here” dot
 src/lib/disruptionStations.ts
 src/lib/formatTime.ts        # Europe/Stockholm
-public/logo.png              # app mascot (circular crop in the overlay header)
+public/logo.png              # app mascot (transparent PNG beside overlay title)
 public/operators/            # Wikimedia Commons logos (letter fallback if missing)
 vite.config.ts               # /api proxy (dev only)
 ```
@@ -107,6 +109,7 @@ Dev paths: `/api/...` via the Vite proxy. Prod: absolute Railway URLs (`import.m
 - Operator badges: colored disc + short letters (`src/lib/operator.ts`). Use snapshot `operator` when present; otherwise copy from selected-train details. Do not fetch `/api/trains/:id` for every train. Marker discs use Wikimedia Commons logos in `public/operators/` (object-fit contain, light disc); keep letter-code fallback when the operator or file is missing (SKÅJ, NJ, unknown). Do not invent or generate logos. Heading chevron rotates with CSS and sits outside the disc; keep operator letters and logos upright. Hide the arrow until a significant move (~25 m at 3s polls); hide again when displacement is tiny (~12 m, GPS jitter) or `speed === 0`.
 - Railway tracks: OpenRailwayMap `standard` tiles as a Leaflet overlay on OSM (default on, overlay toggle “Spår”). Compact “Teckenförklaring” next to Spår recreates the standard-style legend in HTML/CSS (collapsed by default; hide when Spår is off). Do not paste a screenshot. Do not fetch Trafikverket geometry or add a rail-network backend.
 - Disruptions: overlay toggle “Störningar” (default on). Poll `GET /api/disruptions` every 60s (trains stay at 3s). Amber warning markers at affected stations; one marker per station, popup lists events. 500-safe. Do not N+1 station lookups.
+- User location: `navigator.geolocation.watchPosition` in `useUserLocation`. Blue pulsing “you are here” marker (not a train disc). Do not pan/zoom away from the Sweden overview on first fix. Permission denied / unavailable / insecure context: no crash; optional overlay note “Kunde inte hämta din position”; trains still load.
 - Times in the UI: `Europe/Stockholm`.
 - Do not add a backend, React Router (unless a task needs routes), or dummy trains.
 - Prefer small React components and hooks over new frameworks. Keep `npm run build` succeeding.
