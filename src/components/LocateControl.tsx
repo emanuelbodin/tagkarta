@@ -4,12 +4,16 @@ import L from "leaflet";
 import { useMap } from "react-leaflet";
 import type { UserCoords } from "../hooks/useUserLocation";
 
-const USER_LOCATION_ZOOM = 13;
+/** Station / neighborhood scale, shared with the one-time center on load. */
+export const USER_LOCATION_ZOOM = 13;
 const LABEL = "Centrera på min position";
 
+export function zoomForUserLocation(currentZoom: number): number {
+  return Math.max(currentZoom, USER_LOCATION_ZOOM);
+}
+
 function flyToUser(map: L.Map, coords: UserCoords) {
-  const zoom = Math.max(map.getZoom(), USER_LOCATION_ZOOM);
-  map.flyTo([coords.lat, coords.lon], zoom);
+  map.flyTo([coords.lat, coords.lon], zoomForUserLocation(map.getZoom()));
 }
 
 export function LocateControl({
