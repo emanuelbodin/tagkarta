@@ -14,6 +14,11 @@ import {
   snapshotHasUnknownOperator,
   snapshotOperators,
 } from "./lib/filters";
+import {
+  applicableOperators,
+  loadStoredFilters,
+  saveStoredFilters,
+} from "./lib/filterStorage";
 import { groupDisruptionsByStation } from "./lib/disruptionStations";
 
 export default function App() {
@@ -21,12 +26,15 @@ export default function App() {
   const { bySignature: stationsBySignature, error: stationsError } =
     useStations();
   const [selected, setSelected] = useState<ParsedTrain | null>(null);
-  const [numberQuery, setNumberQuery] = useState("");
+  const [storedFilters] = useState(() => loadStoredFilters());
+  const [numberQuery, setNumberQuery] = useState(storedFilters.numberQuery);
   const [selectedOperators, setSelectedOperators] = useState<Set<string>>(
-    () => new Set(),
+    () => new Set(storedFilters.selectedOperators),
   );
-  const [showTracks, setShowTracks] = useState(true);
-  const [showDisruptions, setShowDisruptions] = useState(true);
+  const [showTracks, setShowTracks] = useState(storedFilters.showTracks);
+  const [showDisruptions, setShowDisruptions] = useState(
+    storedFilters.showDisruptions,
+  );
   const { disruptions, error: disruptionsError } =
     useDisruptions(showDisruptions);
   const { coords: userLocation, error: locationError } = useUserLocation();
@@ -48,11 +56,29 @@ export default function App() {
     () => snapshotHasUnknownOperator(trainsWithOperators),
     [trainsWithOperators],
   );
+  const appliedOperators = useMemo(
+    () =>
+      applicableOperators(
+        selectedOperators,
+        operatorOptions,
+        unknownOperatorAvailable,
+      ),
+    [selectedOperators, operatorOptions, unknownOperatorAvailable],
+  );
 
   const visibleTrains = useMemo(
-    () => filterTrains(trainsWithOperators, numberQuery, selectedOperators),
-    [trainsWithOperators, numberQuery, selectedOperators],
+    () => filterTrains(trainsWithOperators, numberQuery, appliedOperators),
+    [trainsWithOperators, numberQuery, appliedOperators],
   );
+
+  useEffect(() => {
+    saveStoredFilters({
+      numberQuery,
+      selectedOperators: [...selectedOperators],
+      showTracks,
+      showDisruptions,
+    });
+  }, [numberQuery, selectedOperators, showTracks, showDisruptions]);
 
   const disruptionGroups = useMemo(
     () => groupDisruptionsByStation(disruptions, stationsBySignature),
@@ -120,7 +146,7 @@ export default function App() {
         onNumberQueryChange={setNumberQuery}
         operatorOptions={operatorOptions}
         unknownOperatorAvailable={unknownOperatorAvailable}
-        selectedOperators={selectedOperators}
+        selectedOperators={appliedOperators}
         onToggleOperator={onToggleOperator}
         onClearFilters={onClearFilters}
         showTracks={showTracks}

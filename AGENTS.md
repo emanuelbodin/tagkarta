@@ -52,6 +52,7 @@ src/components/DisruptionPopup.tsx
 src/api/stations.ts          # GET /api/stations, geometry.WGS84
 src/api/disruptions.ts       # GET /api/disruptions (500-safe)
 src/lib/filters.ts           # client-side number + operator matching
+src/lib/filterStorage.ts     # localStorage restore for overlay filters
 src/lib/timetable.ts         # collapse noisy stops into one row per station
 src/lib/operator.ts          # short codes, disc colors, Commons logo paths
 src/lib/heading.ts            # client-side bearing from successive positions
@@ -104,12 +105,12 @@ Dev paths: `/api/...` via the Vite proxy. Prod: absolute Railway URLs (`import.m
 ## Conventions
 
 - Swedish UI copy. English README and this file.
-- Default map: Sweden (`center ~[62.0, 15.5]`, zoom `~5`). User can pan/zoom. Do not filter to a corridor. Overlay filters (train number substring, operator chips from the current snapshot) are client-side only; empty filters show every train. Collapse search/chips behind the overlay **Sök** toggle (default expanded; do not reset values). Do not add API query params or N+1 fetches for filtering.
+- Default map: Sweden (`center ~[62.0, 15.5]`, zoom `~5`). User can pan/zoom. Do not filter to a corridor. Overlay filters (train number substring, operator chips from the current snapshot) are client-side only; empty filters show every train. Persist number query, selected operators, Spår, and Störningar in `localStorage` (`src/lib/filterStorage.ts`) and restore them on load. Invalid JSON falls back to defaults. Operator keys that are not in the current snapshot are ignored (not applied, not shown as active) until they appear again. Collapse search/chips behind the overlay **Sök** toggle (default expanded; do not reset values). Do not add API query params or N+1 fetches for filtering.
 - Poll positions every `POLL_MS` (3s) in `useTrainPositions`. Marker identity: `operationalTrainNumber + operationalTrainDepartureDate` (fallback `advertisedTrainNumber`). Update markers in place; do not wipe the layer each poll.
 - Operator badges: colored disc + short letters (`src/lib/operator.ts`). Use snapshot `operator` when present; otherwise copy from selected-train details. Do not fetch `/api/trains/:id` for every train. Marker discs use Wikimedia Commons logos in `public/operators/` (object-fit contain, light disc); keep letter-code fallback when the operator or file is missing (SKÅJ, NJ, unknown). Do not invent or generate logos. Heading chevron rotates with CSS and sits outside the disc; keep operator letters and logos upright. Hide the arrow until a significant move (~25 m at 3s polls); hide again when displacement is tiny (~12 m, GPS jitter) or `speed === 0`.
 - Railway tracks: OpenRailwayMap `standard` tiles as a Leaflet overlay on OSM (default on, overlay toggle “Spår”). Compact “Teckenförklaring” next to Spår recreates the standard-style legend in HTML/CSS (collapsed by default; hide when Spår is off). Do not paste a screenshot. Do not fetch Trafikverket geometry or add a rail-network backend.
 - Disruptions: overlay toggle “Störningar” (default on). Poll `GET /api/disruptions` every 60s (trains stay at 3s). Amber warning markers at affected stations; one marker per station, popup lists events. 500-safe. Do not N+1 station lookups.
-- User location: `navigator.geolocation.watchPosition` in `useUserLocation`. Blue pulsing “you are here” marker (not a train disc). Do not pan/zoom away from the Sweden overview on first fix. Permission denied / unavailable / insecure context: no crash; optional overlay note “Kunde inte hämta din position”; trains still load.
+- User location: `navigator.geolocation.watchPosition` in `useUserLocation`. Blue pulsing “you are here” marker (not a train disc). On the first fix after load, `flyTo` the user once at the locate-control zoom (`USER_LOCATION_ZOOM`, station/neighborhood scale). Later fixes must not move the map. Permission denied / unavailable / insecure context: stay on the Sweden overview; no crash; optional overlay note “Kunde inte hämta din position”; trains still load.
 - Times in the UI: `Europe/Stockholm`.
 - Do not add a backend, React Router (unless a task needs routes), or dummy trains.
 - Prefer small React components and hooks over new frameworks. Keep `npm run build` succeeding.

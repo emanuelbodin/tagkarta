@@ -1,4 +1,4 @@
-import { useRef, useState, type RefObject } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import { DomEvent } from "leaflet";
 import {
   Circle,
@@ -13,7 +13,7 @@ import {
 } from "react-leaflet";
 import type { ParsedTrain } from "../api/trains";
 import { DisruptionPopupList } from "./DisruptionPopup";
-import { LocateControl } from "./LocateControl";
+import { LocateControl, zoomForUserLocation } from "./LocateControl";
 import type { UserCoords } from "../hooks/useUserLocation";
 import { operatorBadge } from "../lib/operator";
 import { disruptionDivIcon } from "../lib/disruptionIcon";
@@ -30,6 +30,23 @@ const OSM_ATTRIBUTION =
 
 const OPENRAILWAYMAP_ATTRIBUTION =
   '<a href="https://www.openstreetmap.org/copyright">&copy; OpenStreetMap contributors</a>, Style: <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA 2.0</a> <a href="https://www.openrailwaymap.org/">OpenRailwayMap</a> and OpenStreetMap';
+
+/** First GPS fix after load only — later updates must not fight panning. */
+function CenterOnFirstUserFix({ coords }: { coords: UserCoords | null }) {
+  const map = useMap();
+  const centered = useRef(false);
+
+  useEffect(() => {
+    if (centered.current || !coords) return;
+    if (!Number.isFinite(coords.lat) || !Number.isFinite(coords.lon)) return;
+    centered.current = true;
+    map.flyTo([coords.lat, coords.lon], zoomForUserLocation(map.getZoom()), {
+      duration: 0.75,
+    });
+  }, [coords, map]);
+
+  return null;
+}
 
 function MapBackgroundClick({
   enabled,
@@ -257,6 +274,7 @@ export function TrainMap({
         coords={userLocation}
         locationError={userLocation ? null : locationError}
       />
+      <CenterOnFirstUserFix coords={userLocation} />
       <MapBackgroundClick
         enabled={selectedId != null}
         ignoreNextClick={ignoreNextMapClick}
