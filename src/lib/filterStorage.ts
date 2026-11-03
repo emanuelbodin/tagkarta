@@ -11,6 +11,7 @@ export type StoredFilters = {
   selectedOperators: string[];
   showTracks: boolean;
   showDisruptions: boolean;
+  overlayOpen: boolean;
 };
 
 export const DEFAULT_FILTERS: StoredFilters = {
@@ -18,6 +19,7 @@ export const DEFAULT_FILTERS: StoredFilters = {
   selectedOperators: [],
   showTracks: true,
   showDisruptions: true,
+  overlayOpen: true,
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -59,6 +61,10 @@ export function parseStoredFilters(raw: string): StoredFilters {
         data.showDisruptions,
         DEFAULT_FILTERS.showDisruptions,
       ),
+      overlayOpen: sanitizeBoolean(
+        data.overlayOpen,
+        DEFAULT_FILTERS.overlayOpen,
+      ),
     };
   } catch {
     return DEFAULT_FILTERS;
@@ -84,6 +90,7 @@ export function saveStoredFilters(filters: StoredFilters): void {
       selectedOperators: sanitizeOperators(filters.selectedOperators),
       showTracks: filters.showTracks === true,
       showDisruptions: filters.showDisruptions === true,
+      overlayOpen: filters.overlayOpen === true,
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
   } catch {

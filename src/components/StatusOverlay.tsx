@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, type Ref } from "react";
 import { formatStockholm } from "../lib/formatTime";
 import { UNKNOWN_OPERATOR } from "../lib/filters";
 import { operatorBadge, operatorCode } from "../lib/operator";
@@ -23,7 +23,69 @@ type StatusOverlayProps = {
   onToggleDisruptions: () => void;
   disruptionsError: string | null;
   locationError: string | null;
+  overlayOpen: boolean;
+  onToggleOverlay: () => void;
 };
+
+function OverlayFoldButton({
+  open,
+  filtersActive,
+  buttonRef,
+  onClick,
+}: {
+  open: boolean;
+  filtersActive: boolean;
+  buttonRef: Ref<HTMLButtonElement>;
+  onClick: () => void;
+}) {
+  const label = open
+    ? filtersActive
+      ? "Fäll ihop, filter aktiva"
+      : "Fäll ihop"
+    : filtersActive
+      ? "Fäll ut, filter aktiva"
+      : "Fäll ut";
+
+  return (
+    <button
+      ref={buttonRef}
+      type="button"
+      aria-expanded={open}
+      aria-label={label}
+      title={open ? "Fäll ihop" : "Fäll ut"}
+      onClick={onClick}
+      className={
+        open
+          ? "ml-auto flex items-center gap-1 rounded-md px-1 py-0.5 text-sm font-medium text-gray-800 hover:bg-gray-100"
+          : "flex size-7 shrink-0 items-center justify-center rounded-md border border-gray-300 bg-white text-gray-800 hover:bg-gray-100"
+      }
+    >
+      {open && filtersActive ? (
+        <span
+          className="size-1.5 shrink-0 rounded-full bg-sky-700"
+          aria-hidden="true"
+        />
+      ) : null}
+      {open ? "Sök" : null}
+      <svg
+        viewBox="0 0 12 12"
+        width={open ? 12 : 16}
+        height={open ? 12 : 16}
+        className={`shrink-0 transition-transform ${open ? "size-3 rotate-180" : "size-4"}`}
+        aria-hidden="true"
+      >
+        <path
+          d="M2.5 4.5 L6 8 L9.5 4.5"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </button>
+  );
+}
 
 export function StatusOverlay({
   filteredCount,
@@ -44,13 +106,27 @@ export function StatusOverlay({
   onToggleDisruptions,
   disruptionsError,
   locationError,
+  overlayOpen,
+  onToggleOverlay,
 }: StatusOverlayProps) {
   const [legendOpen, setLegendOpen] = useState(false);
-  const [filtersOpen, setFiltersOpen] = useState(true);
+  const foldButtonRef = useRef<HTMLButtonElement>(null);
+  const focusFoldButton = useRef(false);
 
   useEffect(() => {
     if (!showTracks) setLegendOpen(false);
   }, [showTracks]);
+
+  useEffect(() => {
+    if (!focusFoldButton.current) return;
+    focusFoldButton.current = false;
+    foldButtonRef.current?.focus();
+  }, [overlayOpen]);
+
+  function toggleOverlay() {
+    focusFoldButton.current = true;
+    onToggleOverlay();
+  }
 
   const filtersActive =
     numberQuery.trim() !== "" || selectedOperators.size > 0;
@@ -63,6 +139,28 @@ export function StatusOverlay({
         : `${totalCount} tåg`;
 
   const showOperatorRow = operatorOptions.length > 0;
+
+  if (!overlayOpen) {
+    return (
+      <aside
+        className="absolute top-3 left-3 z-[1000] flex w-max max-w-[calc(100vw-1.5rem)] items-center gap-1 rounded-[10px] bg-white/95 p-1 pr-2.5 text-sm text-gray-900 shadow-[0_1px_8px_rgba(17,24,39,0.18)] md:max-w-[min(20rem,calc(100vw-24rem))]"
+        aria-live="polite"
+      >
+        <h1 className="sr-only">tågkarta</h1>
+        <OverlayFoldButton
+          open={false}
+          filtersActive={filtersActive}
+          buttonRef={foldButtonRef}
+          onClick={toggleOverlay}
+        />
+        {updatedAt ? (
+          <p className="m-0 min-w-0 truncate leading-none">
+            Uppdaterad {formatStockholm(updatedAt)}
+          </p>
+        ) : null}
+      </aside>
+    );
+  }
 
   return (
     <aside
@@ -123,50 +221,22 @@ export function StatusOverlay({
               Teckenförklaring
             </button>
           ) : null}
-          <button
-            type="button"
-            aria-expanded={filtersOpen}
-            aria-controls="overlay-filters"
-            onClick={() => setFiltersOpen((open) => !open)}
-            className="ml-auto flex items-center gap-1 rounded-md px-1 py-0.5 text-sm font-medium text-gray-800 hover:bg-gray-100"
-          >
-            {filtersActive ? (
-              <span
-                className="size-1.5 shrink-0 rounded-full bg-sky-700"
-                aria-hidden="true"
-              />
-            ) : null}
-            Sök
-            <svg
-              viewBox="0 0 12 12"
-              className={`size-3 shrink-0 transition-transform ${filtersOpen ? "rotate-180" : ""}`}
-              aria-hidden="true"
-            >
-              <path
-                d="M2.5 4.5 L6 8 L9.5 4.5"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.6"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-            {filtersActive ? (
-              <span className="sr-only"> (filter aktiva)</span>
-            ) : null}
-          </button>
+          <OverlayFoldButton
+            open
+            filtersActive={filtersActive}
+            buttonRef={foldButtonRef}
+            onClick={toggleOverlay}
+          />
         </div>
       </div>
 
-      {(showTracks && legendOpen) || filtersOpen ? (
-        <div className="mt-2 flex min-h-0 flex-col gap-2 overflow-y-auto overscroll-contain">
+      <div className="mt-2 flex min-h-0 flex-col gap-2 overflow-y-auto overscroll-contain">
           {showTracks && legendOpen ? (
             <div id="track-legend">
               <TrackLegend />
             </div>
           ) : null}
-          {filtersOpen ? (
-            <div id="overlay-filters" className="flex flex-col gap-2">
+          <div id="overlay-filters" className="flex flex-col gap-2">
             <label className="block">
               <span className="sr-only">Filtrera på tågnummer</span>
               <input
@@ -246,9 +316,7 @@ export function StatusOverlay({
               </button>
             ) : null}
           </div>
-        ) : null}
         </div>
-      ) : null}
     </aside>
   );
 }
