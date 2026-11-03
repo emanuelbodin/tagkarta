@@ -46,7 +46,7 @@ src/hooks/useDisruptions.ts  # poll 60s
 src/hooks/useUserLocation.ts # watchPosition; no map pan on first fix
 src/components/TrainMap.tsx  # OSM + OpenRailwayMap overlay, DivIcon markers
 src/components/TrainPanel.tsx
-src/components/StatusOverlay.tsx # overlay + transparent mascot next to title
+src/components/StatusOverlay.tsx # compact overlay; title is sr-only
 src/components/TrackLegend.tsx   # OpenRailwayMap standard-style swatches
 src/components/DisruptionPopup.tsx
 src/api/stations.ts          # GET /api/stations, geometry.WGS84
@@ -61,7 +61,7 @@ src/lib/disruptionIcon.ts
 src/lib/userLocationIcon.ts  # blue pulsing “you are here” dot
 src/lib/disruptionStations.ts
 src/lib/formatTime.ts        # Europe/Stockholm
-public/logo.png              # app mascot (transparent PNG beside overlay title)
+public/logo.png              # favicon and apple-touch-icon (not shown in the overlay)
 public/operators/            # Wikimedia Commons logos (letter fallback if missing)
 vite.config.ts               # /api proxy (dev only)
 ```
