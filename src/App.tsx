@@ -35,6 +35,7 @@ export default function App() {
   const [showDisruptions, setShowDisruptions] = useState(
     storedFilters.showDisruptions,
   );
+  const [overlayOpen, setOverlayOpen] = useState(storedFilters.overlayOpen);
   const { disruptions, error: disruptionsError } =
     useDisruptions(showDisruptions);
   const { coords: userLocation, error: locationError } = useUserLocation();
@@ -77,8 +78,15 @@ export default function App() {
       selectedOperators: [...selectedOperators],
       showTracks,
       showDisruptions,
+      overlayOpen,
     });
-  }, [numberQuery, selectedOperators, showTracks, showDisruptions]);
+  }, [
+    numberQuery,
+    selectedOperators,
+    showTracks,
+    showDisruptions,
+    overlayOpen,
+  ]);
 
   const disruptionGroups = useMemo(
     () => groupDisruptionsByStation(disruptions, stationsBySignature),
@@ -155,6 +163,8 @@ export default function App() {
         onToggleDisruptions={() => setShowDisruptions((on) => !on)}
         disruptionsError={disruptionsNote}
         locationError={userLocation ? null : locationError}
+        overlayOpen={overlayOpen}
+        onToggleOverlay={() => setOverlayOpen((open) => !open)}
       />
       {panelTrain ? (
         <TrainPanel
